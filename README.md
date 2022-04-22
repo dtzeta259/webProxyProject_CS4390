@@ -2,6 +2,15 @@
 
 What's finished: 
 - Sockets
+- Http Parsing
+- Caching
 
 Currently being worked on:
-- Reading and Parsing HTTP Requests
+- Error Handling
+
+What still needs to be done:
+- Team Report
+- Individual Reports
+
+Optional Implementations: 
+- POST Support
