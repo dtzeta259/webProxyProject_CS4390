@@ -129,7 +129,7 @@ while True:
 		
 		print(request + "\n")
 
-		print("END OF MESSGA SENT TO ORIGINAL SERVER")
+		print("END OF MESSAGE SENT TO ORIGINAL SERVER")
 		client.connect((target_host,target_port))  
 		client.send(request.encode())
 		
