@@ -4,13 +4,13 @@ What's finished:
 - Sockets
 - Http Parsing
 - Caching
-
-Currently being worked on:
 - Error Handling
 
-What still needs to be done:
+Currently being worked on:
 - Team Report
 - Individual Reports
+
+What still needs to be done:
 
 Optional Implementations: 
 - POST Support
