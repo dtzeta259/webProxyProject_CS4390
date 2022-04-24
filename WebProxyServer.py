@@ -3,6 +3,8 @@
 #Taking the client's arguments and then use the browser to connect to the websites
 
 from email import parser
+from multiprocessing import Value
+from operator import index
 import socket 
 import threading
 import argparse
@@ -44,6 +46,8 @@ def get_header(response):
 	res = response
 	res = res.split('\r\n\r\n')[0]
 	return res
+
+#TODO: Fix index out of range issue coming from this method
 def parse_data(response):
 	#return method, destAddr, http version
 	cur = ""
@@ -58,8 +62,9 @@ def parse_data(response):
 			cur = ""
 		else:
 			cur += char
-	return lst[0] , lst[1][1:] , lst[2][2:]
+	return lst[0] , lst[1][1:] , lst[2]
 
+#ToDo: Add error handling of host, url, and filename, if null
 def parse_link(link):
 	#need to get host , url , filename
 	host = ""
@@ -106,8 +111,9 @@ while 1:
 	print("END OF MESSAGE RECEIVED FROM CLIENT")
 	
 	print("")
-	print("[PARSE MESSAGE HEADER]")
+	print("[PARSE MESSAGE HEADER]:")
 	print(' METHOD = ',method,' DESTADDRESS = ',link,' HTTPVersion = ',version)
+	print('\n')
 
 
 	if (link not in header_mp.keys()):
@@ -156,6 +162,8 @@ while 1:
 		header_mp[link] = header_sv
 		file_mp[link] = "cache/" + filename
 		message_mp[link] = res
+
+		client.close()
 	else:
 		print("[LOOK UP IN THE CACHE]: FOUND IN THE CACHE: FILE =",file_mp[link])
 		res = message_mp[link]
