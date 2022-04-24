@@ -9,9 +9,7 @@ import argparse
 import re
 
 #Variables for TCP sockets
-BUFFER_SIZE = 6144
 PORT = 5005 #The port that will be used for the project
-#SERVER = socket.gethostbyname(socket.gethostname())
 SERVER = "localhost"
 SERVER_ADDR = (SERVER, PORT)
 
@@ -36,12 +34,12 @@ def requestsGET(clientSock, address):
     #Parse the HTTP request and print it out
 	getRequest = clientMessage.split()
 """
-#Create proxy server socket and listen for get requests
-serverTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-serverTCP.bind(SERVER_ADDR)
-serverTCP.listen(5)
-print("HTTP Proxy Server is listening on IP and port: {}:{}" .format(argServer.serverIP, argServer.serverPort))
-#Connection is established, begin serving via threading
+# #Create proxy server socket and listen for get requests
+# serverTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# serverTCP.bind(SERVER_ADDR)
+# serverTCP.listen(5)
+# print("HTTP Proxy Server is listening on IP and port: {}:{}" .format(argServer.serverIP, argServer.serverPort))
+# #Connection is established, begin serving via threading
 def get_header(response):
 	res = response
 	res = res.split('\r\n\r\n')[0]
@@ -60,7 +58,7 @@ def parse_data(response):
 			cur = ""
 		else:
 			cur += char
-	return lst[0] , lst[1][1:] , lst[2]
+	return lst[0] , lst[1][1:] , lst[2][2:]
 
 def parse_link(link):
 	#need to get host , url , filename
@@ -81,13 +79,21 @@ def parse_link(link):
 	print("[PARSE REQUEST HEADER] HOSTNAME IS", host ,'\n[PARSE REQUEST HEADER] URL IS ',url[1:] ,'\n[PARSE REQUEST HEADER] FILENAME IS ',filename[1:])
 	return host , url[1:] , filename[2:]
 
-header_mp = {}
-file_mp = {}
-message_mp = {}
-while True:
+while 1:
+    
+	header_mp = {}
+	file_mp = {}
+	message_mp = {}
+ 
+	#Create proxy server socket and listen for get requests
+	serverTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	serverTCP.bind(SERVER_ADDR)
+	serverTCP.listen(5)
+	print("HTTP Proxy Server is listening on IP and port: {}:{}" .format(argServer.serverIP, argServer.serverPort))
+ 
+ 	#Connection is established, begin serving
 	clientSocket, address = serverTCP.accept()
 	print("Connection from {} established! Begin client communication." .format(address))
-	#threading.Thread(target=requestsGET, args=(clientSocket, address))
 	data = clientSocket.recv(4096)
 	data = str(data.decode("utf-8"))
 
@@ -110,9 +116,9 @@ while True:
 
 		target_port = 80  # create a socket object 
 		client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  
-	 
+	
 		# connect the client 
-		 
+		
 		print("REQUEST MESSAGE SENT TO ORIGINAL SERVER")
 		target_host, obj , filename = parse_link(link)	
 		#send some data 
@@ -121,9 +127,10 @@ while True:
 		request += "Upgrade-Insecure-Requests: 1\r\n"
 		request += "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36\r\n"
 		request += "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9\r\n"
-		request += "ec-Fetch-Mode: navigate\r\n"
+		request += "Sec-Fetch-Site: none\r\n"
+		request += "Sec-Fetch-Mode: navigate\r\n"
 		request += "Accept-Encoding: gzip, deflate, br\r\n"
-		request += "Accept-Language: en-US,en;q=0.9\r\n"
+		request += "Accept-Language: en-US,en;q=0.9,fr;q=0.8,vi;q=0.7\r\n"
 		request += "\r\n"
 		#create a socket and send request to sever
 		
@@ -145,9 +152,9 @@ while True:
 		print(header_sv)
 		clientSocket.send(res)
 		print("END OF HEADER")
-		print("\n\n[WRITE FILE INTO CACHE]: cache/",filename)
+		print("\n\n[WRITE FILE INTO CACHE]: cache/{}" .format(filename))
 		header_mp[link] = header_sv
-		file_mp[link] = "cache/"+filename
+		file_mp[link] = "cache/" + filename
 		message_mp[link] = res
 	else:
 		print("[LOOK UP IN THE CACHE]: FOUND IN THE CACHE: FILE =",file_mp[link])
@@ -157,3 +164,11 @@ while True:
 		print(header_sv)
 		clientSocket.send(res)
 		print("END OF HEADER")
+  
+		#Close the client socket
+		clientSocket.close()
+	
+	#Close the welcome socket
+	serverTCP.close()
+  
+  	
