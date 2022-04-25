@@ -11,7 +11,6 @@ PORT = 5005 #The port that will be used for the project
 BUFFER = 4096
 SERVER = "localhost"
 SERVER_ADDR = (SERVER, PORT)
-CACHE_DIR = "./cache"
 
 #Read in the arguments for the server ip and port, if any
 #otherwise, use the default port and server ip.
@@ -59,16 +58,30 @@ def parse_link(link):
 		if (link[i] == str('/')[0]):
 			break
 		host += link[i]
+		
 	filename = ""
 	for i in range(len(link)):
 		if (link[i] == str('/')[0]):
 			filename = ""
 		filename += link[i]
-
+		
 	url = link[len(host) :]
+	
 	if (str(filename) == str(host)):
 		filename = "/"
-	print("[PARSE REQUEST HEADER] HOSTNAME IS", host ,'\n[PARSE REQUEST HEADER] URL IS ',url[1:] ,'\n[PARSE REQUEST HEADER] FILENAME IS ',filename[1:])
+	
+	if(host == ""):
+		print("")
+	else:
+		print("[PARSE REQUEST HEADER] HOSTNAME IS", host ,'\n')
+	if(url == ""):
+		print("")
+	else:
+		print('[PARSE REQUEST HEADER] URL IS ',url[1:] ,'\n')
+	if(filename == "/"):
+			print("")
+	else:
+		print('[PARSE REQUEST HEADER] FILENAME IS ',filename[1:],'\n')
 	return host , url[1:] , filename[2:]
 
 header_mp = {}
@@ -135,7 +148,7 @@ while True:
 		print(header_sv)
 		clientSocket.send(res)
 		print("END OF HEADER")
-		print("\n\n[WRITE FILE INTO CACHE]: cache/",filename)
+		print("\n\n[WRITE FILE INTO CACHE]: ./cache/{}".format(filename))
 		header_mp[link] = header_sv
 		file_mp[link] = "./cache/"+filename
 		message_mp[link] = res
