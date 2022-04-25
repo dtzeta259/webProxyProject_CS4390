@@ -3,17 +3,15 @@
 #Taking the client's arguments and then use the browser to connect to the websites
 
 from email import parser
-from multiprocessing import Value
-from operator import index
 import socket 
-import threading
 import argparse
-import re
 
 #Variables for TCP sockets
 PORT = 5005 #The port that will be used for the project
+BUFFER = 4096
 SERVER = "localhost"
 SERVER_ADDR = (SERVER, PORT)
+CACHE_DIR = "./cache"
 
 #Read in the arguments for the server ip and port, if any
 #otherwise, use the default port and server ip.
@@ -28,26 +26,16 @@ parser.add_argument("serverPort", nargs="?", type=int, default=PORT,
 
 argServer = parser.parse_args()
 
-#Methods for the proxy server
-"""
-def requestsGET(clientSock, address):
-	print("Message Received from Client {}:\n" .format(address))
-    clientMessage = clientSock.recv(BUFFER_SIZE).decode()
-    #Parse the HTTP request and print it out
-	getRequest = clientMessage.split()
-"""
-# #Create proxy server socket and listen for get requests
-# serverTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# serverTCP.bind(SERVER_ADDR)
-# serverTCP.listen(5)
-# print("HTTP Proxy Server is listening on IP and port: {}:{}" .format(argServer.serverIP, argServer.serverPort))
-# #Connection is established, begin serving via threading
+#Create proxy server socket and listen for get requests
+serverTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+serverTCP.bind(SERVER_ADDR)
+serverTCP.listen(5)
+print("HTTP Proxy Server is listening on IP and port: {}:{}" .format(argServer.serverIP, argServer.serverPort))
+#Connection is established, begin serving via threading
 def get_header(response):
 	res = response
 	res = res.split('\r\n\r\n')[0]
 	return res
-
-#TODO: Fix index out of range issue coming from this method
 def parse_data(response):
 	#return method, destAddr, http version
 	cur = ""
@@ -64,7 +52,6 @@ def parse_data(response):
 			cur += char
 	return lst[0] , lst[1][1:] , lst[2]
 
-#ToDo: Add error handling of host, url, and filename, if null
 def parse_link(link):
 	#need to get host , url , filename
 	host = ""
@@ -84,22 +71,14 @@ def parse_link(link):
 	print("[PARSE REQUEST HEADER] HOSTNAME IS", host ,'\n[PARSE REQUEST HEADER] URL IS ',url[1:] ,'\n[PARSE REQUEST HEADER] FILENAME IS ',filename[1:])
 	return host , url[1:] , filename[2:]
 
-while 1:
-    
-	header_mp = {}
-	file_mp = {}
-	message_mp = {}
- 
-	#Create proxy server socket and listen for get requests
-	serverTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	serverTCP.bind(SERVER_ADDR)
-	serverTCP.listen(5)
-	print("HTTP Proxy Server is listening on IP and port: {}:{}" .format(argServer.serverIP, argServer.serverPort))
- 
- 	#Connection is established, begin serving
+header_mp = {}
+file_mp = {}
+message_mp = {}
+while True:
 	clientSocket, address = serverTCP.accept()
 	print("Connection from {} established! Begin client communication." .format(address))
-	data = clientSocket.recv(4096)
+	#threading.Thread(target=requestsGET, args=(clientSocket, address))
+	data = clientSocket.recv(BUFFER)
 	data = str(data.decode("utf-8"))
 
 	method, link, version = parse_data(data)
@@ -111,9 +90,8 @@ while 1:
 	print("END OF MESSAGE RECEIVED FROM CLIENT")
 	
 	print("")
-	print("[PARSE MESSAGE HEADER]:")
+	print("[PARSE MESSAGE HEADER]")
 	print(' METHOD = ',method,' DESTADDRESS = ',link,' HTTPVersion = ',version)
-	print('\n')
 
 
 	if (link not in header_mp.keys()):
@@ -122,9 +100,9 @@ while 1:
 
 		target_port = 80  # create a socket object 
 		client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  
-	
+	 
 		# connect the client 
-		
+		 
 		print("REQUEST MESSAGE SENT TO ORIGINAL SERVER")
 		target_host, obj , filename = parse_link(link)	
 		#send some data 
@@ -133,21 +111,20 @@ while 1:
 		request += "Upgrade-Insecure-Requests: 1\r\n"
 		request += "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36\r\n"
 		request += "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9\r\n"
-		request += "Sec-Fetch-Site: none\r\n"
-		request += "Sec-Fetch-Mode: navigate\r\n"
+		request += "ec-Fetch-Mode: navigate\r\n"
 		request += "Accept-Encoding: gzip, deflate, br\r\n"
-		request += "Accept-Language: en-US,en;q=0.9,fr;q=0.8,vi;q=0.7\r\n"
+		request += "Accept-Language: en-US,en;q=0.9\r\n"
 		request += "\r\n"
 		#create a socket and send request to sever
 		
 		print(request + "\n")
 
-		print("END OF MESSAGE SENT TO ORIGINAL SERVER")
+		print("END OF MESSGA SENT TO ORIGINAL SERVER")
 		client.connect((target_host,target_port))  
 		client.send(request.encode())
 		
 		print("\n\nRESPONSE HEADER FROM ORIGINAL SERVER:")
-		res = client.recv(4096)
+		res = client.recv(BUFFER)
 		header_sv = get_header(str(res.decode("utf-8")))
 		print(header_sv)
 
@@ -158,12 +135,12 @@ while 1:
 		print(header_sv)
 		clientSocket.send(res)
 		print("END OF HEADER")
-		print("\n\n[WRITE FILE INTO CACHE]: cache/{}" .format(filename))
+		print("\n\n[WRITE FILE INTO CACHE]: cache/",filename)
 		header_mp[link] = header_sv
-		file_mp[link] = "cache/" + filename
+		file_mp[link] = "./cache/"+filename
 		message_mp[link] = res
-
 		client.close()
+		clientSocket.close()
 	else:
 		print("[LOOK UP IN THE CACHE]: FOUND IN THE CACHE: FILE =",file_mp[link])
 		res = message_mp[link]
@@ -171,12 +148,8 @@ while 1:
 		print("RESPONSE HEADER FROM PROXY TO CLIENT:")
 		print(header_sv)
 		clientSocket.send(res)
-		print("END OF HEADER")
-  
-		#Close the client socket
 		clientSocket.close()
-	
-	#Close the welcome socket
+		print("END OF HEADER")
 	serverTCP.close()
+	break
   
-  	
