@@ -153,9 +153,9 @@ while True:
 		clientSocket.send(res)
 		print("END OF HEADER")
 		if(filename != "/"):
-			print("\n\n[WRITE FILE INTO CACHE]: ./cache/",filename)
+			print("\n\n[WRITE FILE INTO CACHE]: cache/",filename)
 			header_mp[link] = header_sv
-			file_mp[link] = "./cache/"+filename
+			file_mp[link] = "cache/"+filename
 			message_mp[link] = res
 			cacheFile = open(file_mp)
 			cacheFile.write(message_mp)
