@@ -32,10 +32,12 @@ serverTCP.listen(5)
 print("HTTP Proxy Server is listening on IP and port: {}:{}" .format(argServer.serverIP, argServer.serverPort))
 
 #Methods for parsing responses
+#Parse response data method
 def get_header(response):
 	res = response
 	res = res.split('\r\n\r\n')[0]
 	return res
+#Parse for the method, destination address, and http version
 def parse_data(response):
 	#return method, destAddr, http version
 	cur = ""
@@ -52,6 +54,7 @@ def parse_data(response):
 			cur += char
 	return lst[0] , lst[1][1:] , lst[2]
 
+#Parse method for the host, url, and filename
 def parse_link(link):
 	#need to get host , url , filename
 	host = ""
@@ -94,7 +97,6 @@ message_mp = {}
 while True:
 	clientSocket, address = serverTCP.accept()
 	print("Connection from {} established! Begin client communication." .format(address))
-	#threading.Thread(target=requestsGET, args=(clientSocket, address))
 	data = clientSocket.recv(BUFFER)
 	data = str(data.decode("utf-8"))
 
@@ -110,21 +112,79 @@ while True:
 	print("[PARSE MESSAGE HEADER]")
 	print(' METHOD = ',method,' DESTADDRESS = ',link,' HTTPVersion = ',version)
 
+	if(method == "GET"):
+		if (link not in header_mp.keys()):
+			print("[LOOK UP IN THE CACHE]: NOT FOUND, BUILD REQUEST TO SEND TO ORIGINAL SERVER")
 
-	if (link not in header_mp.keys()):
-		print("[LOOK UP IN THE CACHE]: NOT FOUND, BUILD REQUEST TO SEND TO ORIGINAL SERVER")
 
+			target_port = 80  # create a socket object 
+			client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  
+		
+			#create a socket and send request to sever
+			target_host, obj , filename = parse_link(link)	
 
+			#send some data 
+			print("REQUEST MESSAGE SENT TO ORIGINAL SERVER")
+			request = "GET /" +obj+" HTTP/1.1\r\nHost: " + target_host+"\r\n"
+			request += "Connection: close\r\n"
+			request += "Upgrade-Insecure-Requests: 1\r\n"
+			request += "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36\r\n"
+			request += "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9\r\n"
+			request += "Sec-Fetch-Site: none\r\n"
+			request += "Sec-Fetch-Mode: navigate\r\n"
+			request += "Accept-Encoding: gzip, deflate, br\r\n"
+			request += "Accept-Language: en-US,en;q=0.9,fr;q=0.8,vi;q=0.7\r\n"
+			request += "\r\n"
+			
+			# connect the client 
+			print(request + "\n")
+
+			print("END OF MESSAGE SENT TO ORIGINAL SERVER")
+			client.connect((target_host,target_port))  
+			client.send(request.encode())
+			
+			print("\n\nRESPONSE HEADER FROM ORIGINAL SERVER:")
+			res = client.recv(BUFFER)
+			header_sv = get_header(str(res.decode("utf-8")))
+			print(header_sv)
+
+			print("END OF HEADER\n\n")
+			
+			print("RESPONSE HEADER FROM PROXY TO CLIENT:")
+			print(header_sv)
+			clientSocket.send(res)
+			print("END OF HEADER")
+			if(filename != "/"):
+				print("\n\n[WRITE FILE INTO CACHE]: cache/",filename)
+				header_mp[link] = header_sv
+				file_mp[link] = "cache/"+filename
+				message_mp[link] = res
+				# cacheFile = open(file_mp)
+				# cacheFile.write(message_mp)
+				# cacheFile.close
+				
+			
+			client.close()
+			clientSocket.close()
+		else:
+			print("[LOOK UP IN THE CACHE]: FOUND IN THE CACHE: FILE =",file_mp[link])
+			res = message_mp[link]
+			header_sv = header_mp[link]
+			print("RESPONSE HEADER FROM PROXY TO CLIENT:")
+			print(header_sv)
+			clientSocket.send(res)
+			clientSocket.close()
+			print("END OF HEADER")
+	else:
+		#post support
 		target_port = 80  # create a socket object 
 		client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  
-	 
+  
 		# connect the client 
-		 
-		
 		target_host, obj , filename = parse_link(link)	
 		#send some data 
 		print("REQUEST MESSAGE SENT TO ORIGINAL SERVER")
-		request = "GET /" +obj+" HTTP/1.1\r\nHost: " + target_host+"\r\n"
+		request = method + " /" +obj+" HTTP/1.1\r\nHost: " + target_host+"\r\n"
 		request += "Connection: close\r\n"
 		request += "Upgrade-Insecure-Requests: 1\r\n"
 		request += "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36\r\n"
@@ -153,27 +213,8 @@ while True:
 		print(header_sv)
 		clientSocket.send(res)
 		print("END OF HEADER")
-		if(filename != "/"):
-			print("\n\n[WRITE FILE INTO CACHE]: cache/",filename)
-			header_mp[link] = header_sv
-			file_mp[link] = "cache/"+filename
-			message_mp[link] = res
-			# cacheFile = open(file_mp)
-			# cacheFile.write(message_mp)
-			# cacheFile.close
-			
-		
 		client.close()
 		clientSocket.close()
-	else:
-		print("[LOOK UP IN THE CACHE]: FOUND IN THE CACHE: FILE =",file_mp[link])
-		res = message_mp[link]
-		header_sv = header_mp[link]
-		print("RESPONSE HEADER FROM PROXY TO CLIENT:")
-		print(header_sv)
-		clientSocket.send(res)
-		clientSocket.close()
-		print("END OF HEADER")
+   
 	serverTCP.close()
 	break
-  
