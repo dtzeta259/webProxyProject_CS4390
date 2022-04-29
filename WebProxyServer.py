@@ -120,9 +120,10 @@ while True:
 	 
 		# connect the client 
 		 
-		print("REQUEST MESSAGE SENT TO ORIGINAL SERVER")
+		
 		target_host, obj , filename = parse_link(link)	
 		#send some data 
+		print("REQUEST MESSAGE SENT TO ORIGINAL SERVER")
 		request = "GET /" +obj+" HTTP/1.1\r\nHost: " + target_host+"\r\n"
 		request += "Connection: close\r\n"
 		request += "Upgrade-Insecure-Requests: 1\r\n"
@@ -157,9 +158,9 @@ while True:
 			header_mp[link] = header_sv
 			file_mp[link] = "cache/"+filename
 			message_mp[link] = res
-			cacheFile = open(file_mp)
-			cacheFile.write(message_mp)
-			cacheFile.close
+			# cacheFile = open(file_mp)
+			# cacheFile.write(message_mp)
+			# cacheFile.close
 			
 		
 		client.close()
