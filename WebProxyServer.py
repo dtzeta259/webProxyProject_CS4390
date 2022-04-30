@@ -5,7 +5,7 @@
 from email import parser
 import socket 
 import argparse
-#TODO: Find out why last test isn't working
+
 #Variables for TCP sockets
 PORT = 5005 #The port that will be used for the project
 BUFFER = 4096
