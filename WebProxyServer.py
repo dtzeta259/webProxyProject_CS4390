@@ -8,6 +8,7 @@ import threading
 import argparse
 import re
 
+
 #Variables for TCP sockets
 BUFFER_SIZE = 6144
 PORT = 5005 #The port that will be used for the project
