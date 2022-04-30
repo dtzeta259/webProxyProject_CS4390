@@ -12,6 +12,10 @@ BUFFER = 4096
 SERVER = "localhost"
 SERVER_ADDR = (SERVER, PORT)
 
+#Variables for Caching
+header_mp = {}
+file_mp = {}
+message_mp = {}
 #Read in the arguments for the server ip and port, if any
 #otherwise, use the default port and server ip.
 
@@ -91,9 +95,6 @@ def parse_link(link):
   
 	return host , url[1:] , filename[2:]
 
-header_mp = {}
-file_mp = {}
-message_mp = {}
 while True:
 	clientSocket, address = serverTCP.accept()
 	print("Connection from {} established! Begin client communication." .format(address))
@@ -107,12 +108,12 @@ while True:
 	print(data)
 	print("")
 	print("END OF MESSAGE RECEIVED FROM CLIENT")
-	
 	print("")
 	print("[PARSE MESSAGE HEADER]")
+
 	print(' METHOD = ',method,' DESTADDRESS = ',link,' HTTPVersion = ',version)
 
-	if (link not in header_mp.keys()):
+	if (link not in file_mp.keys()):
 		print("[LOOK UP IN THE CACHE]: NOT FOUND, BUILD REQUEST TO SEND TO ORIGINAL SERVER")
 
 
@@ -158,11 +159,7 @@ while True:
 			header_mp[link] = header_sv
 			file_mp[link] = "cache/"+filename
 			message_mp[link] = res
-			# cacheFile = open(file_mp)
-			# cacheFile.write(message_mp)
-			# cacheFile.close
 			
-		
 		client.close()
 		clientSocket.close()
 	else:
@@ -176,4 +173,4 @@ while True:
 		print("END OF HEADER")
 	
 	serverTCP.close()
-	break
+	#break
