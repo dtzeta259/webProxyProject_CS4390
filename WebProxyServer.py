@@ -114,8 +114,6 @@ while True:
 
 	print(' METHOD = ',method,' DESTADDRESS = ',link,' HTTPVersion = ',version)
  
-	print(file_mp.keys())
-
 	if (link not in file_mp.keys()):
 		print("[LOOK UP IN THE CACHE]: NOT FOUND, BUILD REQUEST TO SEND TO ORIGINAL SERVER")
 
