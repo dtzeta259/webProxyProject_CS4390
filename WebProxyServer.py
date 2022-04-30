@@ -173,6 +173,11 @@ while True:
 		clientSocket.close()
 		print("END OF HEADER")
 	
-	
-	serverTCP.close()
-	break
+	#Go back to listening
+	print("HTTP Proxy Server is listening on IP and port: {}:{}" .format(argServer.serverIP, argServer.serverPort))
+	inputUser = input("Press X to close the server, or enter for another request (open new tab on web browser).")
+	if(inputUser == 'X' or inputUser == 'x'):
+		serverTCP.close()
+		break
+	else:
+		continue
