@@ -16,6 +16,7 @@ SERVER_ADDR = (SERVER, PORT)
 header_mp = {}
 file_mp = {}
 message_mp = {}
+
 #Read in the arguments for the server ip and port, if any
 #otherwise, use the default port and server ip.
 
@@ -112,6 +113,8 @@ while True:
 	print("[PARSE MESSAGE HEADER]")
 
 	print(' METHOD = ',method,' DESTADDRESS = ',link,' HTTPVersion = ',version)
+ 
+	print(file_mp.keys())
 
 	if (link not in file_mp.keys()):
 		print("[LOOK UP IN THE CACHE]: NOT FOUND, BUILD REQUEST TO SEND TO ORIGINAL SERVER")
@@ -172,5 +175,6 @@ while True:
 		clientSocket.close()
 		print("END OF HEADER")
 	
+	
 	serverTCP.close()
-	#break
+	break
