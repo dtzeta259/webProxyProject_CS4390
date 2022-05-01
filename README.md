@@ -1,8 +1,8 @@
-CS 4390.002 Web Proxy Project
-Group#: 12
-Date: April 30, 2022
-Team Leader: David Teran (DXT180025)
-Team Members: Duy Vu (DKV180001)
+#CS 4390.002 Web Proxy Project
+#Group#: 12
+#Date: April 30, 2022
+#Team Leader: David Teran (DXT180025)
+#Team Members: Duy Vu (DKV180001)
 
 This is the Web Proxy Project for CS 4390.002. This project uses Python as the main programming language
 and requires a web browser of the user's choice in order for the program to function correctly. Project
