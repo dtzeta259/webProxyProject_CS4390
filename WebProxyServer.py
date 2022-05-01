@@ -1,6 +1,14 @@
-#Computer will act as the client and this file will be the proxy that will connect to the server
-#Meaning there will not be a client file for this one. However, TCP will be implemented by first
-#Taking the client's arguments and then use the browser to connect to the websites
+# This is the Web Proxy Project for CS 4390.002. This project uses Python as 
+# the main programming language and requires a web browser of the user's choice 
+# in order for the program to function correctly. Project will take in a host, 
+# port, and website link of choice that is entered in the web browser and will 
+# print out the HTTP request and response messages as well as the headers included 
+# in the request and response. Program will also return an HTTP response status and 
+# will write the file into the cache. Program will also check if the given file is 
+# found in cache memory. If the file is found in cache memory, program wil retrieve 
+# and print out the file from cache memory. Otherwise, it will send an HTTP request 
+# to the original server.
+# Made by: David Teran (DXT180025) and Duy Vu (DKV180001) for CS4390.002
 
 from email import parser
 import socket 
