@@ -13,8 +13,7 @@ check if the given file is found in cache memory. If the file is found in cache 
 and print out the file from cache memory. Otherwise, it will send an HTTP request to the original server.
 
 How to Use:
-1. Start the web proxy server. A message should appear if the program started up correctly:
-   "HTTP Proxy Server is listening on IP and port: localhost:5005"
+1. Start the web proxy server using an ide or with the following command : python3 WebProxyServer.py. A message should appear if the program started up correctly: "HTTP Proxy Server is listening on IP and port: localhost:5005"
 2. On the web browser of choice, open up a new tab and enter the following on the search bar
    http://\<localhost\>:\<USERPORT\>(default port is 5005)/\<WebSite\> (replace Website with user's website of choice)
 3. Browser should then display the requested page while the terminal prints out the information
